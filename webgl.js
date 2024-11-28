@@ -56,3 +56,14 @@ function createProgram(gl, vertexShader, fragmentShader) {
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 const program = createProgram(gl, vertexShader, fragmentShader);
+
+const programInfo = {
+  attribLocations: {
+      vertexPosition: gl.getAttribLocation(program, "aVertexPosition"),
+      vertexColor: gl.getAttribLocation(program, "aVertexColor"),
+  },
+  uniformLocations: {
+      projectionMatrix: gl.getUniformLocation(program, "uProjectionMatrix"),
+      modelViewMatrix: gl.getUniformLocation(program, "uModelViewMatrix"),
+  },
+};
