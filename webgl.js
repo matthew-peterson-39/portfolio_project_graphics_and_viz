@@ -1,3 +1,4 @@
+// Initialize WebGL context and handle browser support
 const canvas = document.querySelector("#glCanvas");
 const gl = canvas.getContext("webgl");
 
@@ -6,7 +7,8 @@ if (!gl) {
   throw new Error("WebGL not supported");
 }
 
-// Add vertex and fragment shader source code
+// Shader Definitions
+// Vertex shader handles position and color data, applying model-view and projection transformations
 const vertexShaderSource = `
     attribute vec4 aVertexPosition;
     attribute vec4 aVertexColor;
@@ -19,6 +21,7 @@ const vertexShaderSource = `
     }
 `;
 
+// Fragment shader determines the color of each pixel based on interpolated vertex colors
 const fragmentShaderSource = `
     varying lowp vec4 vColor;
     void main(void) {
@@ -26,7 +29,8 @@ const fragmentShaderSource = `
     }
 `;
 
-// Add shader creation utility functions
+// Shader Compilation Utilities
+// Creates and compiles a shader of the specified type from source code
 function createShader(gl, type, source) {
   const shader = gl.createShader(type);
   gl.shaderSource(shader, source);
@@ -40,6 +44,7 @@ function createShader(gl, type, source) {
   return shader;
 }
 
+// Links vertex and fragment shaders into a complete WebGL program
 function createProgram(gl, vertexShader, fragmentShader) {
   const program = gl.createProgram();
   gl.attachShader(program, vertexShader);
@@ -53,10 +58,12 @@ function createProgram(gl, vertexShader, fragmentShader) {
   return program;
 }
 
+// Initialize shaders and create WebGL program
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 const program = createProgram(gl, vertexShader, fragmentShader);
 
+// Store locations of attributes and uniforms for efficient access during rendering
 const programInfo = {
   attribLocations: {
       vertexPosition: gl.getAttribLocation(program, "aVertexPosition"),
@@ -68,20 +75,21 @@ const programInfo = {
   },
 };
 
+// Define geometry and color data for a single triangle
 const triangleData = {
   positions: [
-      -0.5, -0.5, -3.0,  // First vertex
-       0.5, -0.5, -3.0,  // Second vertex
-       0.0,  0.5, -3.0   // Third vertex
+      -0.5, -0.5, -3.0,  // First vertex (bottom-left)
+       0.5, -0.5, -3.0,  // Second vertex (bottom-right)
+       0.0,  0.5, -3.0   // Third vertex (top-center)
   ],
   colors: [
-      1.0, 0.0, 0.0, 1.0,  // Red
-      0.0, 1.0, 0.0, 1.0,  // Green
-      0.0, 0.0, 1.0, 1.0   // Blue
+      1.0, 0.0, 0.0, 1.0,  // Red (bottom-left)
+      0.0, 1.0, 0.0, 1.0,  // Green (bottom-right)
+      0.0, 0.0, 1.0, 1.0   // Blue (top-center)
   ]
 };
 
-// Create and bind position buffer
+// Create and initialize WebGL buffers for vertex positions
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 gl.bufferData(
@@ -90,7 +98,7 @@ gl.bufferData(
   gl.STATIC_DRAW
 );
 
-// Create and bind color buffer
+// Create and initialize WebGL buffers for vertex colors
 const colorBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 gl.bufferData(
@@ -99,29 +107,34 @@ gl.bufferData(
   gl.STATIC_DRAW
 );
 
+// Main rendering function
 function drawScene() {
+  // Clear the canvas and prepare for rendering
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  // Set up perspective projection matrix
   const projectionMatrix = mat4.create();
   mat4.perspective(
       projectionMatrix,
-      (45 * Math.PI) / 180,
+      (45 * Math.PI) / 180,  // 45 degree field of view
       canvas.width / canvas.height,
-      0.1,
-      100.0
+      0.1,  // near clipping plane
+      100.0  // far clipping plane
   );
 
+  // Set up model-view matrix for positioning the triangle in 3D space
   const modelViewMatrix = mat4.create();
   mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -6.0]);
 
+  // Activate our shader program
   gl.useProgram(program);
 
-  // Set position attribute
+  // Configure vertex position attributes
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.vertexAttribPointer(
       programInfo.attribLocations.vertexPosition,
-      3,
+      3,  // 3 components per vertex (x, y, z)
       gl.FLOAT,
       false,
       0,
@@ -129,11 +142,11 @@ function drawScene() {
   );
   gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 
-  // Set color attribute
+  // Configure vertex color attributes
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   gl.vertexAttribPointer(
       programInfo.attribLocations.vertexColor,
-      4,
+      4,  // 4 components per color (r, g, b, a)
       gl.FLOAT,
       false,
       0,
@@ -141,7 +154,7 @@ function drawScene() {
   );
   gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
 
-  // Set uniforms
+  // Update shader uniforms with current transformation matrices
   gl.uniformMatrix4fv(
       programInfo.uniformLocations.projectionMatrix,
       false,
@@ -153,9 +166,9 @@ function drawScene() {
       modelViewMatrix
   );
 
-  // Draw the triangle
+  // Render the triangle
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
-// Initial draw
+// Start rendering
 drawScene();
