@@ -99,3 +99,63 @@ gl.bufferData(
   gl.STATIC_DRAW
 );
 
+function drawScene() {
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  const projectionMatrix = mat4.create();
+  mat4.perspective(
+      projectionMatrix,
+      (45 * Math.PI) / 180,
+      canvas.width / canvas.height,
+      0.1,
+      100.0
+  );
+
+  const modelViewMatrix = mat4.create();
+  mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -6.0]);
+
+  gl.useProgram(program);
+
+  // Set position attribute
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.vertexAttribPointer(
+      programInfo.attribLocations.vertexPosition,
+      3,
+      gl.FLOAT,
+      false,
+      0,
+      0
+  );
+  gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+
+  // Set color attribute
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  gl.vertexAttribPointer(
+      programInfo.attribLocations.vertexColor,
+      4,
+      gl.FLOAT,
+      false,
+      0,
+      0
+  );
+  gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+
+  // Set uniforms
+  gl.uniformMatrix4fv(
+      programInfo.uniformLocations.projectionMatrix,
+      false,
+      projectionMatrix
+  );
+  gl.uniformMatrix4fv(
+      programInfo.uniformLocations.modelViewMatrix,
+      false,
+      modelViewMatrix
+  );
+
+  // Draw the triangle
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+// Initial draw
+drawScene();
