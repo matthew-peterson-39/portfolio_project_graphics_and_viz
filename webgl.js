@@ -67,3 +67,35 @@ const programInfo = {
       modelViewMatrix: gl.getUniformLocation(program, "uModelViewMatrix"),
   },
 };
+
+const triangleData = {
+  positions: [
+      -0.5, -0.5, -3.0,  // First vertex
+       0.5, -0.5, -3.0,  // Second vertex
+       0.0,  0.5, -3.0   // Third vertex
+  ],
+  colors: [
+      1.0, 0.0, 0.0, 1.0,  // Red
+      0.0, 1.0, 0.0, 1.0,  // Green
+      0.0, 0.0, 1.0, 1.0   // Blue
+  ]
+};
+
+// Create and bind position buffer
+const positionBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+gl.bufferData(
+  gl.ARRAY_BUFFER,
+  new Float32Array(triangleData.positions),
+  gl.STATIC_DRAW
+);
+
+// Create and bind color buffer
+const colorBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+gl.bufferData(
+  gl.ARRAY_BUFFER,
+  new Float32Array(triangleData.colors),
+  gl.STATIC_DRAW
+);
+
