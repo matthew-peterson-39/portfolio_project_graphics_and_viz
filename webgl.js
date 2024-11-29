@@ -76,34 +76,53 @@ const programInfo = {
 };
 
 // Define geometry and color data for multiple triangles
-// Each triangle is defined with position vertices and corresponding colors
-// The triangles are positioned at different locations to show overlapping
+// Each triangle includes position vertices, colors, and a z-depth value
+// The z-depth value is used by the Painter's Algorithm for proper rendering order
 const trianglesData = [
-    {
-        positions: [
-            -0.5, -0.5, -3.0,  // First vertex (bottom-left)
-             0.5, -0.5, -3.0,  // Second vertex (bottom-right)
-             0.0,  0.5, -3.0   // Third vertex (top-center)
-        ],
-        colors: [
-            1.0, 0.0, 0.0, 1.0,  // Red (bottom-left)
-            0.0, 1.0, 0.0, 1.0,  // Green (bottom-right)
-            0.0, 0.0, 1.0, 1.0   // Blue (top-center)
-        ]
-    },
-    {
-        positions: [
-            -0.3, -0.3, -2.0,  // First vertex (bottom-left)
-             0.7, -0.3, -2.0,  // Second vertex (bottom-right)
-             0.2,  0.7, -2.0   // Third vertex (top-center)
-        ],
-        colors: [
-            0.0, 0.0, 1.0, 1.0,  // Blue (bottom-left)
-            0.0, 1.0, 1.0, 1.0,  // Cyan (bottom-right)
-            1.0, 0.0, 0.0, 1.0   // Red (top-center)
-        ]
-    }
+  {
+      positions: [
+          -0.5, -0.5, -3.0,  // First vertex (bottom-left)
+           0.5, -0.5, -3.0,  // Second vertex (bottom-right)
+           0.0,  0.5, -3.0   // Third vertex (top-center)
+      ],
+      colors: [
+          1.0, 0.0, 0.0, 1.0,  // Red (bottom-left)
+          0.0, 1.0, 0.0, 1.0,  // Green (bottom-right)
+          0.0, 0.0, 1.0, 1.0   // Blue (top-center)
+      ],
+      zDepth: -3.0  // Furthest triangle
+  },
+  {
+      positions: [
+          -0.3, -0.3, -2.0,  // First vertex (bottom-left)
+           0.7, -0.3, -2.0,  // Second vertex (bottom-right)
+           0.2,  0.7, -2.0   // Third vertex (top-center)
+      ],
+      colors: [
+          0.0, 0.0, 1.0, 1.0,  // Blue (bottom-left)
+          0.0, 1.0, 1.0, 1.0,  // Cyan (bottom-right)
+          1.0, 0.0, 0.0, 1.0   // Red (top-center)
+      ],
+      zDepth: -2.0  // Middle triangle
+  },
+  {
+      positions: [
+          -0.1, -0.1, -1.0,  // First vertex (bottom-left)
+           0.9, -0.1, -1.0,  // Second vertex (bottom-right)
+           0.4,  0.9, -1.0   // Third vertex (top-center)
+      ],
+      colors: [
+          0.0, 1.0, 0.0, 1.0,  // Green (bottom-left)
+          1.0, 0.0, 1.0, 1.0,  // Purple (bottom-right)
+          1.0, 1.0, 0.0, 1.0   // Yellow (top-center)
+      ],
+      zDepth: -1.0  // Nearest triangle
+  }
 ];
+
+// Sort triangles using Painter's Algorithm (furthest first)
+// This ensures proper rendering of overlapping triangles
+trianglesData.sort((a, b) => b.zDepth - a.zDepth);
 
 // Create and initialize WebGL buffers for each triangle
 const buffers = trianglesData.map(triangleData => {
